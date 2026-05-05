@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}商品列表{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>商品列表</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>商品 ID</th>
+                <th>商品名</th>
+                <th>类别</th>
+                <th>价格</th>
+                <th>状态</th>
+                <th>卖家</th>
+                <th>描述</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.item_id }}</td>
+                <td>{{ item.item_name }}</td>
+                <td>{{ item.category }}</td>
+                <td>{{ "%.2f"|format(item.price) }}</td>
+                <td>{{ "已售出" if item.status == 1 else "未售出" }}</td>
+                <td>{{ item.seller_name }}（{{ item.seller_id }}）</td>
+                <td>{{ item.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="form-grid">
+    {% if not is_admin %}
+    <article class="card">
+        <h2>管理员操作提示</h2>
+        <p class="tip">新增商品、修改价格、删除商品仅管理员可执行。请先在首页输入管理员口令进入管理员模式。</p>
+    </article>
+    {% endif %}
+    <article class="card">
+        <h2>新增商品</h2>
+        <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="action" value="add">
+            <label>商品 ID<input type="text" name="item_id" pattern="[A-Za-z0-9_-]{2,20}" required></label>
+            <label>商品名<input type="text" name="item_name" maxlength="100" required></label>
+            <label>类别<input type="text" name="category" maxlength="30" required></label>
+            <label>价格<input type="number" step="0.01" min="0" name="price" required></label>
+            <label>卖家
+                <select name="seller_id" required>
+                    {% for user in users %}
+                    <option value="{{ user.user_id }}">{{ user.user_name }}（{{ user.user_id }}）</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>描述<textarea name="description" rows="3" maxlength="300" required></textarea></label>
+            <button type="submit" {% if not is_admin %}disabled{% endif %}>新增商品</button>
+        </form>
+    </article>
+
+    <article class="card">
+        <h2>修改商品价格</h2>
+        <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="action" value="update_price">
+            <label>商品 ID<input type="text" name="item_id" pattern="[A-Za-z0-9_-]{2,20}" required></label>
+            <label>新价格<input type="number" step="0.01" min="0" name="new_price" required></label>
+            <button type="submit" {% if not is_admin %}disabled{% endif %}>更新价格</button>
+        </form>
+    </article>
+
+    <article class="card">
+        <h2>删除未售商品</h2>
+        <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="action" value="delete">
+            <label>商品 ID<input type="text" name="item_id" pattern="[A-Za-z0-9_-]{2,20}" required></label>
+            <button type="submit" class="danger" {% if not is_admin %}disabled{% endif %}>删除商品</button>
+        </form>
+    </article>
+
+    <article class="card">
+        <h2>购买商品</h2>
+        <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="action" value="buy">
+            <label>买家
+                <select name="buyer_id" required>
+                    {% for user in users %}
+                    <option value="{{ user.user_id }}">{{ user.user_name }}（{{ user.user_id }}）</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>商品 ID<input type="text" name="item_id" pattern="[A-Za-z0-9_-]{2,20}" required></label>
+            <button type="submit">执行购买</button>
+        </form>
+        <p class="tip">购买时会同时向 `orders` 表写入记录，并把商品状态更新为已售出；系统禁止购买自己发布的商品。</p>
+    </article>
+</section>
+{% endblock %}

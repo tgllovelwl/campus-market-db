@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}400 - 请求错误{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>400 请求错误</h2>
+    <p>请求参数不符合要求，请返回上一页检查输入内容。</p>
+    <p><a class="button-link" href="{{ url_for('index') }}">返回首页</a></p>
+</section>
+{% endblock %}

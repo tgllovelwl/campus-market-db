@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}404 - 页面不存在{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>404 页面不存在</h2>
+    <p>你访问的页面不存在，请检查链接是否正确。</p>
+    <p><a class="button-link" href="{{ url_for('index') }}">返回首页</a></p>
+</section>
+{% endblock %}

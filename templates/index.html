@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - 校园二手交易平台数据库系统{% endblock %}
+
+{% block content %}
+<section class="hero card">
+    <h2>作业提交版首页</h2>
+    <p>本系统按照“校园二手交易平台数据库系统”大作业要求实现，覆盖数据库定义、数据操作、基本查询、连接查询、聚合统计、视图、购买业务逻辑、安全性说明与并发恢复说明。</p>
+    {% if is_admin %}
+    <p class="tip">当前状态：管理员模式已开启，可执行新增、改价、删除、重置数据库等操作。</p>
+    <form method="post" action="{{ url_for('admin_logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit">退出管理员模式</button>
+    </form>
+    {% else %}
+    <p class="tip">当前状态：普通用户模式（仅查询与购买）。</p>
+    <form method="post" action="{{ url_for('admin_login') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>管理员口令
+            <input type="password" name="admin_password" placeholder="请输入管理员口令" required>
+        </label>
+        <button type="submit">进入管理员模式</button>
+    </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('reset') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        {% if app_env == "production" %}
+        <label>重置口令（RESET_TOKEN）
+            <input type="password" name="reset_token" placeholder="生产环境需要填写">
+        </label>
+        {% endif %}
+        <button type="submit" class="danger" {% if not is_admin %}disabled{% endif %}>重置数据库为初始数据</button>
+    </form>
+    <p class="tip">系统健康检查接口：<code>/healthz</code>（用于部署平台探活与审计监控）。</p>
+</section>
+
+<section class="stats-grid">
+    <article class="card stat-card">
+        <h3>商品总数</h3>
+        <p>{{ stats.total_items }}</p>
+    </article>
+    <article class="card stat-card">
+        <h3>已售商品</h3>
+        <p>{{ stats.sold_items }}</p>
+    </article>
+    <article class="card stat-card">
+        <h3>未售商品</h3>
+        <p>{{ stats.unsold_items }}</p>
+    </article>
+    <article class="card stat-card">
+        <h3>用户总数</h3>
+        <p>{{ stats.total_users }}</p>
+    </article>
+    <article class="card stat-card">
+        <h3>订单总数</h3>
+        <p>{{ stats.total_orders }}</p>
+    </article>
+</section>
+
+<section class="card">
+    <h2>页面导览</h2>
+    <div class="guide-grid">
+        <article class="guide-card">
+            <h3>商品列表页</h3>
+            <p>用于展示全部商品，并完成新增商品、修改价格、删除未售商品、购买商品四类核心操作。</p>
+            <a class="button-link" href="{{ url_for('items') }}">进入商品列表</a>
+        </article>
+        <article class="guide-card">
+            <h3>用户列表页</h3>
+            <p>展示 `user` 表全部数据，满足作业中用户信息展示要求。</p>
+            <a class="button-link" href="{{ url_for('users') }}">进入用户列表</a>
+        </article>
+        <article class="guide-card">
+            <h3>订单列表页</h3>
+            <p>展示 `orders` 表全部数据，可用于演示购买商品后订单变化。</p>
+            <a class="button-link" href="{{ url_for('orders') }}">进入订单列表</a>
+        </article>
+        <article class="guide-card">
+            <h3>查询与视图页</h3>
+            <p>集中展示基本查询、连接查询、聚合与分组、视图结果，方便截图和答辩演示。</p>
+            <a class="button-link" href="{{ url_for('queries') }}">进入查询与视图</a>
+        </article>
+        <article class="guide-card">
+            <h3>说明页</h3>
+            <p>网页内说明安全性、并发与恢复思路，便于与说明文档内容保持一致。</p>
+            <a class="button-link" href="{{ url_for('report') }}">进入说明页</a>
+        </article>
+    </div>
+</section>
+
+<section class="card">
+    <h2>作业要求对照</h2>
+    <ul class="plain-list">
+        <li>数据库定义：已完成 `user`、`item`、`orders` 三张表及主键、外键、非空、唯一、检查约束。</li>
+        <li>数据操作：在 `商品列表页` 可新增商品、修改商品价格、删除未售商品。</li>
+        <li>基本查询：在 `查询与视图页` 展示未售商品、价格大于 30、生活用品类商品、`u001` 发布商品。</li>
+        <li>连接查询：在 `查询与视图页` 展示已售商品及买家姓名、订单商品名与买家名和日期、`u001` 卖家商品购买情况。</li>
+        <li>聚合与分组：在 `查询与视图页` 展示商品总数、每类商品数量、平均价格、发布商品最多用户。</li>
+        <li>视图：已创建 `sold_items_view` 与 `unsold_items_view`，并在页面中展示结果。</li>
+        <li>业务逻辑：购买商品时会向 `orders` 新增记录，并同步更新 `item.status = 1`。</li>
+        <li>安全性与并发恢复：在 `说明页` 中给出文字说明，可直接用于整理说明文档。</li>
+    </ul>
+</section>
+
+<section class="card">
+    <h2>截图与录屏建议顺序</h2>
+    <ol class="plain-list">
+        <li>先截图首页、用户列表页、商品列表页、订单列表页。</li>
+        <li>在商品列表页依次演示新增商品、修改价格、删除未售商品，并截图前后结果。</li>
+        <li>在查询与视图页依次截图基本查询、连接查询、聚合统计、视图结果。</li>
+        <li>最后演示购买商品，并再次截图商品状态变化和订单表变化。</li>
+        <li>说明页截图可用于文档中的安全性与并发恢复部分。</li>
+    </ul>
+</section>
+{% endblock %}

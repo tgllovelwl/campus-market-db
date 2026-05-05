@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}500 - 服务器错误{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>500 服务器错误</h2>
+    <p>服务器出现错误，请稍后重试。</p>
+    <p><a class="button-link" href="{{ url_for('index') }}">返回首页</a></p>
+</section>
+{% endblock %}

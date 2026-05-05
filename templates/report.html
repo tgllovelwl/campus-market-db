@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}说明页{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>安全性说明</h2>
+    <ul class="plain-list">
+        <li>普通用户只开放查询与购买相关页面，管理员可执行新增商品、修改价格、删除未售商品、重置数据库等操作。</li>
+        <li>管理员默认口令：<code>admin123</code>（生产环境请通过环境变量 <code>ADMIN_PASSWORD</code> 修改）。</li>
+        <li>管理登录已集成限速保护：5 分钟内最多尝试 5 次，超出后锁定 10 分钟。</li>
+        <li>所有写操作均需携带 CSRF Token，防止跨站请求伪造攻击。</li>
+        <li>后端对所有用户输入进行统一校验（ID 格式、文本长度、价格范围等），防止注入与非法数据。</li>
+    </ul>
+</section>
+
+<section class="card">
+    <h2>并发与恢复说明</h2>
+    <ul class="plain-list">
+        <li>如果两个用户同时购买同一商品，可能出现重复下单或状态不一致问题。</li>
+        <li>本项目在购买逻辑中使用事务和 `BEGIN IMMEDIATE`，先锁定写入流程，再插入订单并更新商品状态。</li>
+        <li>`orders.item_id` 设置唯一约束，即使并发场景下也能阻止一件商品被重复交易。</li>
+        <li>如果系统崩溃，数据库会利用事务机制保证未提交操作回滚；正式部署可结合定期备份恢复订单数据。</li>
+    </ul>
+</section>
+
+<section class="card">
+    <h2>部署建议</h2>
+    <p>当前项目为 Flask 单体应用，适合直接部署到 Render、Railway 等平台。提交作业时，请将线上网址写在说明文档开头，并录制从访问网址到完成所有功能演示的完整视频。</p>
+</section>
+{% endblock %}
