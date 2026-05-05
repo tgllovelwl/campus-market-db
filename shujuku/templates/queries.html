@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}查询与视图{% endblock %}
+
+{% macro render_table(rows) -%}
+    {% if rows %}
+        <table>
+            <thead>
+                <tr>
+                    {% for key in rows[0].keys() %}
+                    <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    {% for value in row %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>暂无结果。</p>
+    {% endif %}
+{%- endmacro %}
+
+{% block content %}
+<section class="card">
+    <h2>基本查询</h2>
+    {% for title, rows in basic_queries.items() %}
+    <article class="query-block">
+        <h3>{{ title }}</h3>
+        {{ render_table(rows) }}
+    </article>
+    {% endfor %}
+</section>
+
+<section class="card">
+    <h2>连接查询</h2>
+    {% for title, rows in join_queries.items() %}
+    <article class="query-block">
+        <h3>{{ title }}</h3>
+        {{ render_table(rows) }}
+    </article>
+    {% endfor %}
+</section>
+
+<section class="card">
+    <h2>聚合与分组</h2>
+    {% for title, rows in aggregate_queries.items() %}
+    <article class="query-block">
+        <h3>{{ title }}</h3>
+        {{ render_table(rows) }}
+    </article>
+    {% endfor %}
+</section>
+
+<section class="card">
+    <h2>视图展示</h2>
+    {% for title, rows in view_queries.items() %}
+    <article class="query-block">
+        <h3>{{ title }}</h3>
+        {{ render_table(rows) }}
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

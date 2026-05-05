@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: campus-market-db-homework
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    disk:
+      name: campus-market-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_PATH
+        value: /var/data/campus_market.db
+      - key: APP_ENV
+        value: production
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: RESET_TOKEN
+        sync: false
+      - key: LOGIN_MAX_ATTEMPTS
+        value: "5"
+      - key: LOGIN_WINDOW_SECONDS
+        value: "300"
+      - key: LOGIN_LOCK_SECONDS
+        value: "600"
+      - key: LOG_PATH
+        value: /var/data/app.log
